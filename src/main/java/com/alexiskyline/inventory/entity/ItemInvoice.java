@@ -14,7 +14,7 @@ public class ItemInvoice {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
-    private Integer cantidad;
+    private Integer quantity;
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")

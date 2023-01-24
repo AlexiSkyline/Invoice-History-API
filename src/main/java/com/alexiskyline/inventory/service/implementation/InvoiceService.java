@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +29,8 @@ public class InvoiceService implements IInvoiceService {
 
     @Override
     @Transactional(readOnly = true)
-    public Invoice findById(Long id) {
-        return this.invoiceRepository.findById(id).orElse(null);
+    public Optional<Invoice> findById(Long id) {
+        return this.invoiceRepository.findById(id);
     }
 
     @Override

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +38,8 @@ public class ClientService implements IClientService {
 
     @Override
     @Transactional(readOnly = true)
-    public Client findById(Long id) {
-        return this.clientRepository.findById(id).orElse(null);
+    public Optional<Client> findById(Long id) {
+        return this.clientRepository.findById(id);
     }
 
     @Override
