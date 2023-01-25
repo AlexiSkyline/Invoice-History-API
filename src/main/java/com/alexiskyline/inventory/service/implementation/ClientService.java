@@ -1,9 +1,10 @@
 package com.alexiskyline.inventory.service.implementation;
 
 import com.alexiskyline.inventory.dto.ClientDTO;
-import com.alexiskyline.inventory.dto.ClientRegistrationRequest;
+import com.alexiskyline.inventory.dto.ClientRequest;
 import com.alexiskyline.inventory.entity.Client;
 import com.alexiskyline.inventory.entity.Region;
+import com.alexiskyline.inventory.exception.ResourceNotFoundException;
 import com.alexiskyline.inventory.repository.IClientRepository;
 import com.alexiskyline.inventory.service.IClientService;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +25,9 @@ public class ClientService implements IClientService {
 
     @Override
     @Transactional
-    public ClientDTO register(ClientRegistrationRequest request) {
+    public ClientDTO register(ClientRequest request) {
         Client newClient = this.clientRepository
-                .save(new Client(request.name(), request.lastName(), request.email()));
+                .save(new Client(request.getName(), request.getLastName(), request.getEmail()));
         return this.mapper.map(newClient, ClientDTO.class);
     }
 
@@ -44,20 +45,34 @@ public class ClientService implements IClientService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Client> findById(Long id) {
-        return this.clientRepository.findById(id);
+    public Client findById(Long id) {
+        return this.getFoundByClientId(id);
     }
 
     @Override
     @Transactional
-    public Client update(Client client) {
-        return this.clientRepository.save(client);
+    public ClientDTO updateInformation(Long id, ClientRequest request) {
+        Client foundClient = this.getFoundByClientId(id);
+        foundClient.setName(request.getName());
+        foundClient.setLastName(request.getLastName());
+        foundClient.setEmail(request.getEmail());
+        return this.mapper.map(this.clientRepository.save(foundClient), ClientDTO.class);
     }
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public ClientDTO updatePhoto(Long id, String fileName) {
+        Client foundClient = this.getFoundByClientId(id);
+        foundClient.setPhoto(fileName);
+        return this.mapper.map(this.clientRepository.save(foundClient), ClientDTO.class);
+    }
+
+    @Override
+    @Transactional
+    public Client delete(Long id) {
+        Client foundClient = this.getFoundByClientId(id);
         this.clientRepository.deleteById(id);
+        return foundClient;
     }
 
     @Override
@@ -69,8 +84,16 @@ public class ClientService implements IClientService {
     @Override
     @Transactional
     public Client setRegion(Long idClient, Region region) {
-        Optional<Client> foundClient = this.clientRepository.findById(idClient);
-        foundClient.get().setRegion(region);
-        return this.clientRepository.save(foundClient.get());
+        Client foundClient = this.getFoundByClientId(idClient);
+        foundClient.setRegion(region);
+        return this.clientRepository.save(foundClient);
+    }
+
+    private Client getFoundByClientId(Long id) {
+        Optional<Client> foundClient = this.clientRepository.findById(id);
+        if (foundClient.isEmpty()) {
+            throw new ResourceNotFoundException("Client", "ID", id.toString());
+        }
+        return foundClient.get();
     }
 }

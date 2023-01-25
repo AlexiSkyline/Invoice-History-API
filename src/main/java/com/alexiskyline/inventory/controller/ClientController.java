@@ -1,7 +1,7 @@
 package com.alexiskyline.inventory.controller;
 
 import com.alexiskyline.inventory.dto.ClientDTO;
-import com.alexiskyline.inventory.dto.ClientRegistrationRequest;
+import com.alexiskyline.inventory.dto.ClientRequest;
 import com.alexiskyline.inventory.entity.Client;
 import com.alexiskyline.inventory.entity.Region;
 import com.alexiskyline.inventory.service.IClientService;
@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("v1/clients")
@@ -30,7 +29,7 @@ public class ClientController {
     private final IUploadFileService uploadFileService;
 
     @PostMapping
-    public ResponseEntity<ClientDTO> registerClient(@RequestBody ClientRegistrationRequest request) {
+    public ResponseEntity<ClientDTO> registerClient(@RequestBody ClientRequest request) {
         return ResponseEntity.ok(this.clientService.register(request));
     }
 
@@ -41,8 +40,7 @@ public class ClientController {
 
     @GetMapping("{id}")
     public ResponseEntity<Client> findClientById(@PathVariable Long id) {
-        return this.clientService.findById(id).map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(this.clientService.findById(id));
     }
 
     @GetMapping("page/{page}")
@@ -52,41 +50,23 @@ public class ClientController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Client> updateClient(@PathVariable Long id, @RequestBody Client client) {
-        Optional<Client> foundClient = this.clientService.findById(id);
-        if (foundClient.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        foundClient.get().setName(client.getName());
-        foundClient.get().setLastName(client.getLastName());
-        foundClient.get().setEmail(client.getEmail());
-        foundClient.get().setRegion(client.getRegion());
-
-        return ResponseEntity.ok(this.clientService.update(foundClient.get()));
+    public ResponseEntity<ClientDTO> updateClient(@PathVariable Long id, @RequestBody ClientRequest request) {
+        return ResponseEntity.ok(this.clientService.updateInformation(id, request));
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<Client> deleteClient(@PathVariable Long id) {
-        Optional<Client> foundClient = this.clientService.findById(id);
-        if (foundClient.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        this.uploadFileService.delete(foundClient.get().getPhoto());
-        this.clientService.delete(id);
-        return ResponseEntity.ok(foundClient.get());
+        Client foundClient = this.clientService.delete(id);
+        this.uploadFileService.delete(foundClient.getPhoto());
+        return ResponseEntity.ok(foundClient);
     }
 
-    @PostMapping("uploads")
-    public ResponseEntity<Client> uploadClient(@RequestParam("file") MultipartFile file, @RequestParam("id") Long id) throws IOException {
-        Optional<Client> foundClient = this.clientService.findById(id);
-        if (foundClient.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
+    @PatchMapping("uploads")
+    public ResponseEntity<ClientDTO> uploadClient(@RequestParam("file") MultipartFile file, @RequestParam("id") Long id) throws IOException {
         String fileName = this.uploadFileService.copy(file);
-        this.uploadFileService.delete(foundClient.get().getPhoto());
-        foundClient.get().setPhoto(fileName);
-        return ResponseEntity.ok(this.clientService.update(foundClient.get()));
+        ClientDTO clientDTO = this.clientService.updatePhoto(id, fileName);
+        this.uploadFileService.delete(clientDTO.getPhoto());
+        return ResponseEntity.ok(clientDTO);
     }
 
     @GetMapping("uploads/img/{fileName:.+}")
@@ -99,7 +79,7 @@ public class ClientController {
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 
-    @PostMapping("{id}/region")
+    @PatchMapping("{id}/region")
     public ResponseEntity<Client> setRegionByClientId(@PathVariable Long id, @RequestBody Region region) {
         return ResponseEntity.ok(this.clientService.setRegion(id, region));
     }

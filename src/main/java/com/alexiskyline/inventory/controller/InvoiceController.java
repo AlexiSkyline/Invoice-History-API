@@ -31,27 +31,20 @@ public class InvoiceController {
 
     @GetMapping("{id}")
     public ResponseEntity<Invoice> findInvoicesByID(@PathVariable Long id) {
-        Optional<Invoice> foundInvoice = this.invoiceService.findById(id);
-        return foundInvoice.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(this.invoiceService.findById(id));
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<Invoice> deleteInvoice(@PathVariable Long id) {
-        Optional<Invoice> foundInvoice = this.invoiceService.findById(id);
-        if (foundInvoice.isEmpty()) {
-            ResponseEntity.notFound().build();
-        }
-        this.invoiceService.delete(id);
-        return ResponseEntity.ok(foundInvoice.get());
+        return ResponseEntity.ok(this.invoiceService.delete(id));
     }
 
-    @PostMapping("{id}/client")
+    @PutMapping("{id}/client")
     public ResponseEntity<InvoiceDTO> addClientByInvoiceID(@PathVariable Long id, @RequestBody Client client) {
         return ResponseEntity.ok(this.invoiceService.setClient(id, client));
     }
 
-    @PostMapping("{id}/item")
+    @PatchMapping("{id}/item")
     public ResponseEntity<InvoiceDTO> addItemByInvoiceID(@PathVariable Long id, @RequestBody ItemInvoice itemInvoice) {
         return ResponseEntity.ok(this.invoiceService.addItem(id, itemInvoice));
     }

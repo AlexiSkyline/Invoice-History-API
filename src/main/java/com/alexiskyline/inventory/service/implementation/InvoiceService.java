@@ -6,6 +6,7 @@ import com.alexiskyline.inventory.dto.InvoiceRegistrationRequest;
 import com.alexiskyline.inventory.entity.Client;
 import com.alexiskyline.inventory.entity.Invoice;
 import com.alexiskyline.inventory.entity.ItemInvoice;
+import com.alexiskyline.inventory.exception.ResourceNotFoundException;
 import com.alexiskyline.inventory.repository.IInvoiceRepository;
 import com.alexiskyline.inventory.service.IInvoiceService;
 import lombok.RequiredArgsConstructor;
@@ -41,31 +42,41 @@ public class InvoiceService implements IInvoiceService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Invoice> findById(Long id) {
-        return this.invoiceRepository.findById(id);
+    public Invoice findById(Long id) {
+        return this.getFoundInvoiceById(id);
     }
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public Invoice delete(Long id) {
+        Invoice foundInvoice = this.getFoundInvoiceById(id);
         this.invoiceRepository.deleteById(id);
+        return foundInvoice;
     }
 
     @Override
     @Transactional
     public InvoiceDTO setClient(Long id, Client client) {
-        Optional<Invoice> foundInvoice = this.invoiceRepository.findById(id);
-        foundInvoice.get().setClient(client);
-        this.invoiceRepository.save(foundInvoice.get());
-        return this.mapper.map(foundInvoice.get(), InvoiceDTO.class);
+        Invoice foundInvoice = this.getFoundInvoiceById(id);
+        foundInvoice.setClient(client);
+        this.invoiceRepository.save(foundInvoice);
+        return this.mapper.map(foundInvoice, InvoiceDTO.class);
     }
 
     @Override
     @Transactional
     public InvoiceDTO addItem(Long id, ItemInvoice itemInvoice) {
+        Invoice foundInvoice = this.getFoundInvoiceById(id);
+        foundInvoice.getItems().add(itemInvoice);
+        this.invoiceRepository.save(foundInvoice);
+        return this.mapper.map(foundInvoice, InvoiceDTO.class);
+    }
+
+    private Invoice getFoundInvoiceById(Long id) {
         Optional<Invoice> foundInvoice = this.invoiceRepository.findById(id);
-        foundInvoice.get().getItems().add(itemInvoice);
-        this.invoiceRepository.save(foundInvoice.get());
-        return this.mapper.map(foundInvoice.get(), InvoiceDTO.class);
+        if (foundInvoice.isEmpty()) {
+            throw new ResourceNotFoundException("Invoice", "ID", id.toString());
+        }
+        return foundInvoice.get();
     }
 }

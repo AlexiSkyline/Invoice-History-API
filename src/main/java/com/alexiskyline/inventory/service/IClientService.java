@@ -1,7 +1,7 @@
 package com.alexiskyline.inventory.service;
 
 import com.alexiskyline.inventory.dto.ClientDTO;
-import com.alexiskyline.inventory.dto.ClientRegistrationRequest;
+import com.alexiskyline.inventory.dto.ClientRequest;
 import com.alexiskyline.inventory.entity.Client;
 import com.alexiskyline.inventory.entity.Region;
 import org.springframework.data.domain.Page;
@@ -11,8 +11,9 @@ import java.util.List;
 
 public interface IClientService extends ICrudService<Client> {
     List<Client> findAll();
-    ClientDTO register(ClientRegistrationRequest request);
-    Client update(Client client);
+    ClientDTO register(ClientRequest request);
+    ClientDTO updateInformation(Long id, ClientRequest client);
+    ClientDTO updatePhoto(Long id, String fileName);
     Page<Client> findAll(Pageable pageable);
     List<Region> findAllRegions();
     Client setRegion(Long idClient, Region region);
