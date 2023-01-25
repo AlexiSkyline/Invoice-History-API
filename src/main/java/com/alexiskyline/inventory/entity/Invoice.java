@@ -30,9 +30,16 @@ public class Invoice {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "invoice_id")
     private List<ItemInvoice> items;
+
     public Invoice() {
         items = new ArrayList<>();
     }
+
+    public Invoice(String description, String observation) {
+        this.description = description;
+        this.observation = observation;
+    }
+
     @PrePersist
     public void prePersist() {
         this.createAt = new Date();

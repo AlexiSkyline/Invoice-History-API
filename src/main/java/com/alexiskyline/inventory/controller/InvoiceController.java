@@ -1,6 +1,10 @@
 package com.alexiskyline.inventory.controller;
 
+import com.alexiskyline.inventory.dto.InvoiceDTO;
+import com.alexiskyline.inventory.dto.InvoiceRegistrationRequest;
+import com.alexiskyline.inventory.entity.Client;
 import com.alexiskyline.inventory.entity.Invoice;
+import com.alexiskyline.inventory.entity.ItemInvoice;
 import com.alexiskyline.inventory.service.IInvoiceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +20,12 @@ public class InvoiceController {
     private final IInvoiceService invoiceService;
 
     @PostMapping
-    public ResponseEntity<Invoice> saveInvoice(@RequestBody Invoice invoice) {
-        return ResponseEntity.ok(this.invoiceService.save(invoice));
+    public ResponseEntity<Invoice> saveInvoice(@RequestBody InvoiceRegistrationRequest request) {
+        return ResponseEntity.ok(this.invoiceService.save(request));
     }
 
     @GetMapping
-    public ResponseEntity<List<Invoice>> findAllInvoices() {
+    public ResponseEntity<List<InvoiceDTO>> findAllInvoices() {
         return ResponseEntity.ok(this.invoiceService.findAll());
     }
 
@@ -40,5 +44,15 @@ public class InvoiceController {
         }
         this.invoiceService.delete(id);
         return ResponseEntity.ok(foundInvoice.get());
+    }
+
+    @PostMapping("{id}/client")
+    public ResponseEntity<InvoiceDTO> addClientByInvoiceID(@PathVariable Long id, @RequestBody Client client) {
+        return ResponseEntity.ok(this.invoiceService.addClient(id, client));
+    }
+
+    @PostMapping("{id}/item")
+    public ResponseEntity<InvoiceDTO> addItemByInvoiceID(@PathVariable Long id, @RequestBody ItemInvoice itemInvoice) {
+        return ResponseEntity.ok(this.invoiceService.addItem(id, itemInvoice));
     }
 }
