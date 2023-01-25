@@ -3,14 +3,16 @@ package com.alexiskyline.inventory.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
+import java.util.Date;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "clients")
+@NoArgsConstructor
 @Getter @Setter
 public class Client {
     @Id
@@ -29,4 +31,15 @@ public class Client {
     @JoinColumn(name = "region_id")
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Region region;
+
+    public Client(String name, String lastName, String email) {
+        this.name = name;
+        this.lastName = lastName;
+        this.email = email;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.createAt = new java.util.Date();
+    }
 }

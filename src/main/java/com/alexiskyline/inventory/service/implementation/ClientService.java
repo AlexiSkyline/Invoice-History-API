@@ -1,10 +1,13 @@
 package com.alexiskyline.inventory.service.implementation;
 
+import com.alexiskyline.inventory.dto.ClientDTO;
+import com.alexiskyline.inventory.dto.ClientRegistrationRequest;
 import com.alexiskyline.inventory.entity.Client;
 import com.alexiskyline.inventory.entity.Region;
 import com.alexiskyline.inventory.repository.IClientRepository;
 import com.alexiskyline.inventory.service.IClientService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,11 +20,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ClientService implements IClientService {
     private final IClientRepository clientRepository;
+    private final ModelMapper mapper = new ModelMapper();
 
     @Override
     @Transactional
-    public Client save(Client client) {
-        return this.clientRepository.save(client);
+    public ClientDTO register(ClientRegistrationRequest request) {
+        Client newClient = this.clientRepository
+                .save(new Client(request.name(), request.lastName(), request.email()));
+        return this.mapper.map(newClient, ClientDTO.class);
     }
 
     @Override
@@ -44,6 +50,12 @@ public class ClientService implements IClientService {
 
     @Override
     @Transactional
+    public Client update(Client client) {
+        return this.clientRepository.save(client);
+    }
+
+    @Override
+    @Transactional
     public void delete(Long id) {
         this.clientRepository.deleteById(id);
     }
@@ -52,5 +64,13 @@ public class ClientService implements IClientService {
     @Transactional(readOnly = true)
     public List<Region> findAllRegions() {
         return this.clientRepository.findAllRegios();
+    }
+
+    @Override
+    @Transactional
+    public Client setRegion(Long idClient, Region region) {
+        Optional<Client> foundClient = this.clientRepository.findById(idClient);
+        foundClient.get().setRegion(region);
+        return this.clientRepository.save(foundClient.get());
     }
 }

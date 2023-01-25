@@ -1,6 +1,9 @@
 package com.alexiskyline.inventory.controller;
 
+import com.alexiskyline.inventory.dto.ClientDTO;
+import com.alexiskyline.inventory.dto.ClientRegistrationRequest;
 import com.alexiskyline.inventory.entity.Client;
+import com.alexiskyline.inventory.entity.Region;
 import com.alexiskyline.inventory.service.IClientService;
 import com.alexiskyline.inventory.service.IUploadFileService;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +30,8 @@ public class ClientController {
     private final IUploadFileService uploadFileService;
 
     @PostMapping
-    public ResponseEntity<Client> createClient(@RequestBody Client client) {
-        return ResponseEntity.ok(this.clientService.save(client));
+    public ResponseEntity<ClientDTO> registerClient(@RequestBody ClientRegistrationRequest request) {
+        return ResponseEntity.ok(this.clientService.register(request));
     }
 
     @GetMapping
@@ -59,7 +62,7 @@ public class ClientController {
         foundClient.get().setEmail(client.getEmail());
         foundClient.get().setRegion(client.getRegion());
 
-        return ResponseEntity.ok(this.clientService.save(foundClient.get()));
+        return ResponseEntity.ok(this.clientService.update(foundClient.get()));
     }
 
     @DeleteMapping("{id}")
@@ -83,7 +86,7 @@ public class ClientController {
         String fileName = this.uploadFileService.copy(file);
         this.uploadFileService.delete(foundClient.get().getPhoto());
         foundClient.get().setPhoto(fileName);
-        return ResponseEntity.ok(this.clientService.save(foundClient.get()));
+        return ResponseEntity.ok(this.clientService.update(foundClient.get()));
     }
 
     @GetMapping("uploads/img/{fileName:.+}")
@@ -94,5 +97,10 @@ public class ClientController {
                 "attachment; filename=\"" + resource.getFilename() + "\"");
 
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+    }
+
+    @PostMapping("{id}/region")
+    public ResponseEntity<Client> setRegionByClientId(@PathVariable Long id, @RequestBody Region region) {
+        return ResponseEntity.ok(this.clientService.setRegion(id, region));
     }
 }

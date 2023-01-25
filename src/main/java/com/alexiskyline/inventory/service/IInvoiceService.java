@@ -11,6 +11,6 @@ import java.util.List;
 public interface IInvoiceService extends ICrudService<Invoice> {
     Invoice save(InvoiceRegistrationRequest request);
     List<InvoiceDTO> findAll();
-    InvoiceDTO addClient(Long id, Client client);
+    InvoiceDTO setClient(Long id, Client client);
     InvoiceDTO addItem(Long id, ItemInvoice itemInvoice);
 }

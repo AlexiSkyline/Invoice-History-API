@@ -48,7 +48,7 @@ public class InvoiceController {
 
     @PostMapping("{id}/client")
     public ResponseEntity<InvoiceDTO> addClientByInvoiceID(@PathVariable Long id, @RequestBody Client client) {
-        return ResponseEntity.ok(this.invoiceService.addClient(id, client));
+        return ResponseEntity.ok(this.invoiceService.setClient(id, client));
     }
 
     @PostMapping("{id}/item")

@@ -1,6 +1,5 @@
 package com.alexiskyline.inventory.service.implementation;
 
-import com.alexiskyline.inventory.dto.ClientDTO;
 import com.alexiskyline.inventory.dto.InvoiceDTO;
 import com.alexiskyline.inventory.dto.InvoiceDTOMapper;
 import com.alexiskyline.inventory.dto.InvoiceRegistrationRequest;
@@ -54,7 +53,7 @@ public class InvoiceService implements IInvoiceService {
 
     @Override
     @Transactional
-    public InvoiceDTO addClient(Long id, Client client) {
+    public InvoiceDTO setClient(Long id, Client client) {
         Optional<Invoice> foundInvoice = this.invoiceRepository.findById(id);
         foundInvoice.get().setClient(client);
         this.invoiceRepository.save(foundInvoice.get());
