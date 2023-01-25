@@ -6,6 +6,7 @@ import com.alexiskyline.inventory.entity.Client;
 import com.alexiskyline.inventory.entity.Region;
 import com.alexiskyline.inventory.service.IClientService;
 import com.alexiskyline.inventory.service.IUploadFileService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -29,7 +30,7 @@ public class ClientController {
     private final IUploadFileService uploadFileService;
 
     @PostMapping
-    public ResponseEntity<ClientDTO> registerClient(@RequestBody ClientRequest request) {
+    public ResponseEntity<ClientDTO> registerClient(@Valid @RequestBody ClientRequest request) {
         return ResponseEntity.ok(this.clientService.register(request));
     }
 
@@ -50,7 +51,7 @@ public class ClientController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<ClientDTO> updateClient(@PathVariable Long id, @RequestBody ClientRequest request) {
+    public ResponseEntity<ClientDTO> updateClient(@PathVariable Long id, @Valid @RequestBody ClientRequest request) {
         return ResponseEntity.ok(this.clientService.updateInformation(id, request));
     }
 

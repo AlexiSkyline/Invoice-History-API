@@ -6,12 +6,12 @@ import com.alexiskyline.inventory.entity.Client;
 import com.alexiskyline.inventory.entity.Invoice;
 import com.alexiskyline.inventory.entity.ItemInvoice;
 import com.alexiskyline.inventory.service.IInvoiceService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("v1/invoices")
@@ -20,7 +20,7 @@ public class InvoiceController {
     private final IInvoiceService invoiceService;
 
     @PostMapping
-    public ResponseEntity<Invoice> saveInvoice(@RequestBody InvoiceRegistrationRequest request) {
+    public ResponseEntity<Invoice> saveInvoice(@Valid @RequestBody InvoiceRegistrationRequest request) {
         return ResponseEntity.ok(this.invoiceService.save(request));
     }
 

@@ -1,6 +1,10 @@
 package com.alexiskyline.inventory.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+
 public record InvoiceRegistrationRequest(
-    String description,
-    String observation
+        @NotEmpty
+        String description,
+        @NotEmpty
+        String observation
 ) {}
