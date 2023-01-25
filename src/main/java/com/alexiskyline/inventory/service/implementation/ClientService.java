@@ -16,7 +16,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ClientService implements IClientService {
-    private IClientRepository clientRepository;
+    private final IClientRepository clientRepository;
 
     @Override
     @Transactional

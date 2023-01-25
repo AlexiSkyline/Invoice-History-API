@@ -19,8 +19,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class UploadFileService implements IUploadFileService {
-    private final static String DIRECTORY_UPLOAD = "uploads";
-    private final static String FILE_PATH = "src/main/resources/static/images";
+    private final static String FILE_PATH = "./src/main/resources/static/images";
 
     @Override
     public Resource load(String namePhoto) throws MalformedURLException {
@@ -62,7 +61,7 @@ public class UploadFileService implements IUploadFileService {
 
     @Override
     public Path getPath(String namePhoto) {
-        return Paths.get(DIRECTORY_UPLOAD).resolve(namePhoto).toAbsolutePath();
+        return Paths.get(FILE_PATH).resolve(namePhoto).toAbsolutePath();
     }
 
     private String generateFileName(MultipartFile file) {
