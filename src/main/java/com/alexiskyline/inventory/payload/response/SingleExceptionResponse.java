@@ -1,4 +1,4 @@
-package com.alexiskyline.inventory.payload;
+package com.alexiskyline.inventory.payload.response;
 
 import com.alexiskyline.inventory.exception.Error;
 import lombok.Builder;

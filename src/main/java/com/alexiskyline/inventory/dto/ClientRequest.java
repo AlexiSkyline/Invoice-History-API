@@ -1,5 +1,6 @@
 package com.alexiskyline.inventory.dto;
 
+import com.alexiskyline.inventory.entity.Region;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -16,4 +17,5 @@ public class ClientRequest {
     @NotEmpty
     @Email
     private String email;
+    private Region region;
 }

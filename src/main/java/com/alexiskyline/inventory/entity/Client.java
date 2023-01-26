@@ -32,10 +32,11 @@ public class Client {
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Region region;
 
-    public Client(String name, String lastName, String email) {
+    public Client(String name, String lastName, String email, Region region) {
         this.name = name;
         this.lastName = lastName;
         this.email = email;
+        this.region = region;
     }
 
     @PrePersist

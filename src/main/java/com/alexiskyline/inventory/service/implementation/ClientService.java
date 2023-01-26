@@ -22,7 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ClientService implements IClientService {
     private final IClientRepository clientRepository;
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Override
     @Transactional
@@ -31,7 +31,7 @@ public class ClientService implements IClientService {
             throw new DuplicateResourceException("Email", request.getEmail(), "Client");
         }
         Client newClient = this.clientRepository
-                .save(new Client(request.getName(), request.getLastName(), request.getEmail()));
+                .save(new Client(request.getName(), request.getLastName(), request.getEmail(), request.getRegion()));
         return this.mapper.map(newClient, ClientDTO.class);
     }
 
@@ -56,7 +56,8 @@ public class ClientService implements IClientService {
     @Override
     @Transactional
     public ClientDTO updateInformation(Long id, ClientRequest request) {
-        if (this.clientRepository.findByEmail(request.getEmail()).isPresent()) {
+        Optional<Client> existClient = this.clientRepository.findByEmail(request.getEmail());
+        if (existClient.isPresent() && !(existClient.get().getId().equals(id))) {
             throw new DuplicateResourceException("Email", request.getEmail(), "Client");
         }
         Client foundClient = this.getFoundByClientId(id);
@@ -80,20 +81,6 @@ public class ClientService implements IClientService {
         Client foundClient = this.getFoundByClientId(id);
         this.clientRepository.deleteById(id);
         return foundClient;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Region> findAllRegions() {
-        return this.clientRepository.findAllRegios();
-    }
-
-    @Override
-    @Transactional
-    public Client setRegion(Long idClient, Region region) {
-        Client foundClient = this.getFoundByClientId(idClient);
-        foundClient.setRegion(region);
-        return this.clientRepository.save(foundClient);
     }
 
     private Client getFoundByClientId(Long id) {

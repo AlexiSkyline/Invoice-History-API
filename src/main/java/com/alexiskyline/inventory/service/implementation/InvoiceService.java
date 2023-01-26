@@ -23,7 +23,7 @@ import java.util.stream.StreamSupport;
 public class InvoiceService implements IInvoiceService {
     private final IInvoiceRepository invoiceRepository;
     private final InvoiceDTOMapper invoiceDTOMapper;
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Override
     @Transactional
