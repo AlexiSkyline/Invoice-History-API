@@ -4,6 +4,7 @@ import com.alexiskyline.inventory.dto.ClientDTO;
 import com.alexiskyline.inventory.dto.ClientRequest;
 import com.alexiskyline.inventory.entity.Client;
 import com.alexiskyline.inventory.entity.Region;
+import com.alexiskyline.inventory.exception.DuplicateResourceException;
 import com.alexiskyline.inventory.exception.ResourceNotFoundException;
 import com.alexiskyline.inventory.repository.IClientRepository;
 import com.alexiskyline.inventory.service.IClientService;
@@ -26,6 +27,9 @@ public class ClientService implements IClientService {
     @Override
     @Transactional
     public ClientDTO register(ClientRequest request) {
+        if (this.clientRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new DuplicateResourceException("Email", request.getEmail(), "Client");
+        }
         Client newClient = this.clientRepository
                 .save(new Client(request.getName(), request.getLastName(), request.getEmail()));
         return this.mapper.map(newClient, ClientDTO.class);
@@ -52,6 +56,9 @@ public class ClientService implements IClientService {
     @Override
     @Transactional
     public ClientDTO updateInformation(Long id, ClientRequest request) {
+        if (this.clientRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new DuplicateResourceException("Email", request.getEmail(), "Client");
+        }
         Client foundClient = this.getFoundByClientId(id);
         foundClient.setName(request.getName());
         foundClient.setLastName(request.getLastName());

@@ -1,5 +1,6 @@
 package com.alexiskyline.inventory.controller;
 
+import com.alexiskyline.inventory.exception.DuplicateResourceException;
 import com.alexiskyline.inventory.exception.Error;
 import com.alexiskyline.inventory.exception.ResourceNotFoundException;
 import com.alexiskyline.inventory.payload.SeveralExceptionResponse;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.util.*;
 
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestControllerAdvice
@@ -30,14 +32,9 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         BindingResult result = ex.getBindingResult();
         List<Error> errors = new LinkedList<>();
-        result.getFieldErrors().forEach( error -> {
+        result.getFieldErrors().forEach(error -> {
             String message = this.messageSource.getMessage( error, Locale.forLanguageTag( "US" ) );
-            errors.add(
-                    Error.builder()
-                    .filedName(error.getField())
-                    .location("JSON-Body")
-                    .message(message)
-                            .build() );
+            errors.add(Error.builder().filedName(error.getField()).location("JSON-Body").message(message).build());
         });
         SeveralExceptionResponse responseBody = SeveralExceptionResponse.builder()
                 .timeStamp(new Date().toString())
@@ -51,11 +48,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {ResourceNotFoundException.class})
     public ResponseEntity<SingleExceptionResponse> resourceNotFoundException(ResourceNotFoundException exception) {
-        Error error = Error.builder()
-                .filedName(exception.getFiledName())
-                .location("PathVariable")
-                .message(exception.getMessage())
-                .build();
+        Error error = this.buildError(exception, exception.getFiledName(), "PathVariable");
         SingleExceptionResponse response = SingleExceptionResponse.builder()
                 .timeStamp(new Date().toString())
                 .httpCode(NOT_FOUND.value())
@@ -64,5 +57,27 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
                 .error(error)
                 .build();
         return new ResponseEntity<>(response, NOT_FOUND);
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<SingleExceptionResponse> duplicateResourceException(DuplicateResourceException exception) {
+        Error error = this.buildError(exception, exception.getFiledName(), "JSON-Body");
+        SingleExceptionResponse errorResponse = SingleExceptionResponse.builder()
+                .timeStamp(new Date().toString())
+                .httpCode(CONFLICT.value())
+                .httpStatus(CONFLICT)
+                .details(String.format("The provided property: '%s' is already in use, please provide a different value",
+                        exception.getResourceName()))
+                .error(error)
+                .build();
+        return new ResponseEntity<>(errorResponse, CONFLICT);
+    }
+
+    private Error buildError(Exception exception, String fieldName, String location) {
+        return Error.builder()
+                .filedName(fieldName)
+                .location(location)
+                .message(exception.getMessage())
+                .build();
     }
 }
